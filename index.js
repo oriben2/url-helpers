@@ -5,27 +5,41 @@ var domainFromUrl = exports.domainFromUrl = function (first) {
   if (first.hasOwnProperty('domain')) {
     return first;
   }
-  return parseDomain(first);
+  return parseDomain(first.toLowerCase());
+};
+
+var joinHostnameComponents = exports.joinHostnameComponents = function(parsed) {
+  if (parsed.subdomain.length) {
+    return (parsed.subdomain + "." + parsed.domain + "." + parsed.tld);
+  } else {
+    return (parsed.domain + "." + parsed.tld);
+  }
 };
 
 var normalizedHostname = exports.normalizedHostname = function(urlString) {
-  var hostname = url.parse(urlString).hostname;
-  return hostname && hostname.toLowerCase();
+  var parsed = domainFromUrl(urlString);
+  if (!parsed.domain) {
+    return null;
+  }
+  return joinHostnameComponents(parsed);
 };
 
-var normalizedHostnames = exports.normalizedHostnames = function(urlString) {	
-  var parsed = parseDomain(urlString);
+var normalizedHostnames = exports.normalizedHostnames = function(urlString) {
+  var parsed = domainFromUrl(urlString);
   if (!parsed.domain) {
-  	return undefined;
-  }
-  var hostnames = [];
-  if (parsed.subdomain.length) {
-  	hostnames.push(parsed.subdomain + "." + parsed.domain + "." + parsed.tld);
-  } else {
-  	hostnames = hostnames.concat([parsed.domain + "." + parsed.tld, "www." + parsed.domain + "." + parsed.tld]);
+    return null;
   }
 
-  return hostnames.map(Function.prototype.call, String.prototype.toLowerCase);
+  var joined = joinHostnameComponents(parsed);
+  var hostnames = [joined];
+  if (parsed.subdomain.length > 0) {
+    if (parsed.subdomain === 'www.') {
+      return hostnames.concat(parsed.domain + '.' + parsed.tld);
+    }
+    return hostnames;
+  } else {
+    return hostnames.concat('www.' + joined);
+  }
 };
 
 var domainInUrlCollection = exports.domainInUrlCollection = function (first, coll) {
