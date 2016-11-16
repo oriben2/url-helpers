@@ -18,7 +18,7 @@ var joinHostnameComponents = exports.joinHostnameComponents = function(parsed) {
 
 var normalizedHostname = exports.normalizedHostname = function(urlString) {
   var parsed = domainFromUrl(urlString);
-  if (!parsed.domain) {
+  if (!parsed || !parsed.hasOwnProperty('domain')) {
     return null;
   }
   return joinHostnameComponents(parsed);
