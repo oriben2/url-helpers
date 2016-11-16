@@ -1,10 +1,16 @@
 var parseDomain = require('parse-domain');
+var url = require('url');
 
 var domainFromUrl = exports.domainFromUrl = function (first) {
   if (first.hasOwnProperty('domain')) {
     return first;
   }
   return parseDomain(first);
+};
+
+var normalizedHostname = exports.normalizedHostname = function(urlString) {
+  var hostname = url.parse(urlString).hostname;
+  return hostname && hostname.toLowerCase();
 };
 
 var normalizedHostnames = exports.normalizedHostnames = function(urlString) {	
